@@ -1,0 +1,6 @@
+.quarto/
+.venv/
+*_files/
+index.html
+index.pdf
+index.docx
