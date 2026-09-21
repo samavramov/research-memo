@@ -1,0 +1,66 @@
+---
+title: "An Analysis of Obesity as a Function of Frequent Consumption of High-Caloric Foods"
+author: "Sam Avramov"
+date: "2026-09-16"
+date-format: "MMMM D, YYYY"
+jupyter: python3
+bibliography: references.bib
+format:
+  html:
+    embed-resources: true
+  pdf:
+    geometry:
+      - top=0.4in
+      - bottom=0.6in
+      - left=0.65in
+      - right=0.65in
+  docx: default
+execute:
+  echo: true
+  cache: false
+---
+
+**Research question:** Is obesity a function of frequently eating high caloric foods?
+
+**$H_0$:** Obesity is not a function of frequently eating high caloric foods.
+
+**$H_1$:** Obesity is a function of frequently eating high caloric foods.
+
+```{python}
+# Imports and Data Ingestion
+import pandas as pd
+from scipy.stats import chi2_contingency
+from IPython.display import display, Markdown
+data = pd.read_csv("data/obesity_dataset.csv")
+```
+
+```{python}
+# Re-map the Data and Verification
+mapper = dict.fromkeys(["Obesity_Type_I", "Obesity_Type_II", "Obesity_Type_III"], "Obese")
+mapper.update(dict.fromkeys(["Overweight_Level_I", "Overweight_Level_II","Normal_Weight", "Insufficient_Weight"], "Not Obese"))
+data["isObese"] = data["NObeyesdad"].map(mapper)
+assert data["isObese"].notna().all()
+```
+
+```{python}
+# chi2_contingency Test
+my_results = chi2_contingency(pd.crosstab(data["FAVC"], data["isObese"]))
+mantissa, exponent = f"{my_results[1]:.3e}".split("e")
+display(Markdown(f"$$\\text{{Result:}}\\quad "f"\\chi^2({my_results[2]}) = {my_results[0]:.2f}"f"\\qquad p = {mantissa} \\times 10^{{{int(exponent)}}}$$"))
+```
+
+Across $2{,}111$ records, about $51\%$ of those reporting frequent
+consumption of high caloric foods were classified as obese, compared
+with about $8\%$ of those not reporting frequent consumption.
+Because $p < .001$ is below $\alpha = .05$, we reject $H_0$ and
+conclude that obesity is a function of frequently eating high caloric foods.
+
+::: {.callout-warning title="Partly synthetic data"}
+Approximately $77\%$ of the records were generated using SMOTE;
+$23\%$ were collected directly from users [@uci_obesity2019].
+:::
+
+## References
+
+::: {#refs}
+:::
